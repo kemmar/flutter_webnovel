@@ -117,24 +117,19 @@ public class WuxiaModels {
     public String getTitle() { return title; }
     public void setTitle(String setterArg) { this.title = setterArg; }
 
-    private String chapter;
-    public String getChapter() { return chapter; }
-    public void setChapter(String setterArg) { this.chapter = setterArg; }
+    private List<String> chapter;
+    public List<String> getChapter() { return chapter; }
+    public void setChapter(List<String> setterArg) { this.chapter = setterArg; }
 
-    private String nextPage;
-    public String getNextPage() { return nextPage; }
-    public void setNextPage(String setterArg) { this.nextPage = setterArg; }
-
-    private String prevPage;
-    public String getPrevPage() { return prevPage; }
-    public void setPrevPage(String setterArg) { this.prevPage = setterArg; }
+    private List<ChapterElm> chapters;
+    public List<ChapterElm> getChapters() { return chapters; }
+    public void setChapters(List<ChapterElm> setterArg) { this.chapters = setterArg; }
 
     Map<String, Object> toMap() {
       Map<String, Object> toMapResult = new HashMap<>();
       toMapResult.put("title", title);
       toMapResult.put("chapter", chapter);
-      toMapResult.put("nextPage", nextPage);
-      toMapResult.put("prevPage", prevPage);
+      toMapResult.put("chapters", chapters);
       return toMapResult;
     }
     static Chapter fromMap(Map<String, Object> map) {
@@ -142,11 +137,9 @@ public class WuxiaModels {
       Object title = map.get("title");
       fromMapResult.title = (String)title;
       Object chapter = map.get("chapter");
-      fromMapResult.chapter = (String)chapter;
-      Object nextPage = map.get("nextPage");
-      fromMapResult.nextPage = (String)nextPage;
-      Object prevPage = map.get("prevPage");
-      fromMapResult.prevPage = (String)prevPage;
+      fromMapResult.chapter = (List<String>)chapter;
+      Object chapters = map.get("chapters");
+      fromMapResult.chapters = (List<ChapterElm>)chapters;
       return fromMapResult;
     }
   }
@@ -163,12 +156,15 @@ public class WuxiaModels {
           return ChapterElm.fromMap((Map<String, Object>) readValue(buffer));
         
         case (byte)130:         
-          return ChapterInfo.fromMap((Map<String, Object>) readValue(buffer));
+          return ChapterElm.fromMap((Map<String, Object>) readValue(buffer));
         
         case (byte)131:         
-          return NovelInfo.fromMap((Map<String, Object>) readValue(buffer));
+          return ChapterInfo.fromMap((Map<String, Object>) readValue(buffer));
         
         case (byte)132:         
+          return NovelInfo.fromMap((Map<String, Object>) readValue(buffer));
+        
+        case (byte)133:         
           return NovelInfo.fromMap((Map<String, Object>) readValue(buffer));
         
         default:        
@@ -186,16 +182,20 @@ public class WuxiaModels {
         stream.write(129);
         writeValue(stream, ((ChapterElm) value).toMap());
       } else 
-      if (value instanceof ChapterInfo) {
+      if (value instanceof ChapterElm) {
         stream.write(130);
+        writeValue(stream, ((ChapterElm) value).toMap());
+      } else 
+      if (value instanceof ChapterInfo) {
+        stream.write(131);
         writeValue(stream, ((ChapterInfo) value).toMap());
       } else 
       if (value instanceof NovelInfo) {
-        stream.write(131);
+        stream.write(132);
         writeValue(stream, ((NovelInfo) value).toMap());
       } else 
       if (value instanceof NovelInfo) {
-        stream.write(132);
+        stream.write(133);
         writeValue(stream, ((NovelInfo) value).toMap());
       } else 
 {

@@ -1,7 +1,9 @@
+// @dart = 2.11
 import 'package:flutter/material.dart';
 import 'package:wuxia_app_java/main.dart';
-import 'package:wuxia_app_java/pigeon.dart';
 import 'package:wuxia_app_java/view/chapter_page.dart';
+
+import '../pigeon.dart';
 
 class NovelDetailsPage extends StatefulWidget {
   const NovelDetailsPage({Key key, this.novel}) : super(key: key);
@@ -32,13 +34,16 @@ class _NovelDetailsPageState extends State<NovelDetailsPage> {
     });
   }
 
-  void flipList() {
+  ChapterElm _addChapterList(ChapterElm chapterElm) {
+    chapterElm.chapters = _chapters;
+    return chapterElm;
+  }
 
+  void flipList() {
     setState(() {
       _reverse = !(_reverse);
       _chapters = _chapters.reversed.toList();
     });
-
   }
 
   @override
@@ -67,7 +72,9 @@ class _NovelDetailsPageState extends State<NovelDetailsPage> {
                       .map((e) => ListTile(title: Text(e.name), onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => NovelChapterPage(chapter: e)),
+                        builder: (context) =>
+                          NovelChapterPage(chapter: _addChapterList(e), chapterIndex: _chapters.indexOf(e))
+                        ),
                   ),))
                       .toList(),
             )

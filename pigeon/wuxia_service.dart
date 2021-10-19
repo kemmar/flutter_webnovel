@@ -1,3 +1,4 @@
+// @dart = 2.12
 import 'package:pigeon/pigeon.dart';
 
 @HostApi()
@@ -12,25 +13,24 @@ abstract class NovelApi {
 }
 
 class NovelInfo {
-  String name;
-  String imgUrl;
-  String url;
+  String? name;
+  String? imgUrl;
+  String? url;
 }
 
 class ChapterElm {
-  String name;
-  String urlPath;
+  String? name;
+  String? urlPath;
+  List<ChapterElm?>? chapters;
 }
 
 class ChapterInfo {
-  String name;
-  String imgUrl;
-  List<ChapterElm> chapters;
+  String? name;
+  String? imgUrl;
+  List<ChapterElm?>? chapters;
 }
 
 class Chapter {
-  String title;
-  String chapter;
-  String nextPage;
-  String prevPage;
+  String? title;
+  List<String?>? chapter;
 }

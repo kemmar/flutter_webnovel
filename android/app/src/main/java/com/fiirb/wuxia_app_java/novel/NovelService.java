@@ -13,6 +13,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -92,7 +93,7 @@ public class NovelService {
                             chapterInfo.setChapters(getChapterElements());
 
                             return chapterInfo;
-                        }).filter(e -> !e.getName().trim().isEmpty() && !e.getImgUrl().trim().isEmpty())
+                        })
                         .collect(Collectors.toList())
                         .iterator()
                         .next();
@@ -126,7 +127,13 @@ public class NovelService {
                 Chapter chapter = new Chapter();
 
                 String title = chapterElement.select(".chapter-title").text();
-                String chapterStr = chapterElement.select(".chapter-entity").html();
+                List<String> chapterStr =
+                        Arrays.asList(chapterElement
+                                .select(".chapter-entity")
+                                .html()
+                                .replaceAll("<br>", "")
+                                .replaceAll("<script>ChapterMid();</script>", "")
+                                .split("\n"));;
 
                 chapter.setTitle(title);
                 chapter.setChapter(chapterStr);
@@ -167,18 +174,19 @@ public class NovelService {
 
             private List<NovelInfo> docToNovelInfoList(Document doc) {
                 List<NovelInfo> result = doc.select(".list-item a").stream().map(e -> {
-                    String link = e.attr("class", "item-img").attr("href");
-                    String name = e.select("item-img").attr("alt");
-                    String image = e.select("item-img").attr("src");
+                    NovelInfo novel = new NovelInfo();
 
-                    NovelInfo novelInfo = new NovelInfo();
 
-                    novelInfo.setName(name);
-                    novelInfo.setUrl(link);
-                    novelInfo.setImgUrl(image);
+                    novel.setName(e.select(".item-img").attr("alt"));
 
-                    return novelInfo;
-                }).collect(Collectors.toList());
+                    novel.setUrl(e.attr("class", "item-img").attr("href").replace("/", ""));
+
+                    novel.setImgUrl(e.select(".item-img").attr("src"));
+
+                    return novel;
+                })
+                        .filter(novel -> !novel.getName().isEmpty())
+                        .collect(Collectors.toList());
 
                 return result;
             }
@@ -210,7 +218,7 @@ public class NovelService {
                     for (Element element : document
                             .select(".pages a")) {
                         String e = element.text();
-                        if (e.equals("1")) {
+                        if (!e.equals("1")) {
                             List<NovelInfo> pagination = pagination(e);
                             pages.addAll(pagination);
                         }
@@ -224,7 +232,6 @@ public class NovelService {
             public List<NovelInfo> getPages() {
                 return pages
                         .stream()
-                        .filter(novel -> !novel.getName().trim().isEmpty() && !novel.getUrl().trim().isEmpty())
                         .collect(Collectors.toList());
             }
 

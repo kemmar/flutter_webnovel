@@ -48,7 +48,7 @@ public class NovelApiImp implements WuxiaModels.NovelApi {
             ChapterInfo chapterInfo = new ChapterInfo();
 
             chapterInfo.setName("not found");
-            chapterInfo.setChapters(new ArrayList());
+            chapterInfo.setChapters(new ArrayList<>());
             return new ChapterInfo();
         }
     }
@@ -59,10 +59,8 @@ public class NovelApiImp implements WuxiaModels.NovelApi {
             return novelService.getChapter(chapterName);
         } catch (Exception e) {
            Chapter blankChapter = new Chapter();
-           blankChapter.setChapter("hello world");
-           blankChapter.setTitle("hello title");
-           blankChapter.setNextPage("forward");
-           blankChapter.setPrevPage("back");
+           blankChapter.setChapter(new ArrayList<>());
+           blankChapter.setTitle("not found");
             return blankChapter;
         }
     }

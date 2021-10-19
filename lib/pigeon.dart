@@ -33,11 +33,13 @@ class NovelInfo {
 class ChapterElm {
   String? name;
   String? urlPath;
+  List<ChapterElm?>? chapters;
 
   Object encode() {
     final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
     pigeonMap['name'] = name;
     pigeonMap['urlPath'] = urlPath;
+    pigeonMap['chapters'] = chapters;
     return pigeonMap;
   }
 
@@ -45,7 +47,8 @@ class ChapterElm {
     final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
     return ChapterElm()
       ..name = pigeonMap['name'] as String?
-      ..urlPath = pigeonMap['urlPath'] as String?;
+      ..urlPath = pigeonMap['urlPath'] as String?
+      ..chapters = (pigeonMap['chapters'] as List<Object?>?)?.cast<ChapterElm?>();
   }
 }
 
@@ -73,16 +76,14 @@ class ChapterInfo {
 
 class Chapter {
   String? title;
-  String? chapter;
-  String? nextPage;
-  String? prevPage;
+  List<String?>? chapter;
+  List<ChapterElm?>? chapters;
 
   Object encode() {
     final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
     pigeonMap['title'] = title;
     pigeonMap['chapter'] = chapter;
-    pigeonMap['nextPage'] = nextPage;
-    pigeonMap['prevPage'] = prevPage;
+    pigeonMap['chapters'] = chapters;
     return pigeonMap;
   }
 
@@ -90,9 +91,8 @@ class Chapter {
     final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
     return Chapter()
       ..title = pigeonMap['title'] as String?
-      ..chapter = pigeonMap['chapter'] as String?
-      ..nextPage = pigeonMap['nextPage'] as String?
-      ..prevPage = pigeonMap['prevPage'] as String?;
+      ..chapter = (pigeonMap['chapter'] as List<Object?>?)?.cast<String?>()
+      ..chapters = (pigeonMap['chapters'] as List<Object?>?)?.cast<ChapterElm?>();
   }
 }
 
@@ -108,16 +108,20 @@ class _NovelApiCodec extends StandardMessageCodec {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
     } else 
-    if (value is ChapterInfo) {
+    if (value is ChapterElm) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
     } else 
-    if (value is NovelInfo) {
+    if (value is ChapterInfo) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
     } else 
     if (value is NovelInfo) {
       buffer.putUint8(132);
+      writeValue(buffer, value.encode());
+    } else 
+    if (value is NovelInfo) {
+      buffer.putUint8(133);
       writeValue(buffer, value.encode());
     } else 
 {
@@ -134,12 +138,15 @@ class _NovelApiCodec extends StandardMessageCodec {
         return ChapterElm.decode(readValue(buffer)!);
       
       case 130:       
-        return ChapterInfo.decode(readValue(buffer)!);
+        return ChapterElm.decode(readValue(buffer)!);
       
       case 131:       
-        return NovelInfo.decode(readValue(buffer)!);
+        return ChapterInfo.decode(readValue(buffer)!);
       
       case 132:       
+        return NovelInfo.decode(readValue(buffer)!);
+      
+      case 133:       
         return NovelInfo.decode(readValue(buffer)!);
       
       default:      
