@@ -1,0 +1,26 @@
+name: wuxia_app_java
+description: novel reader
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.11.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  pigeon: ^1.0.7
+  flutter_lints: ^1.0.0
+  flutter_html: ^2.1.5
+  flutter_search_bar: ^3.0.0-dev.1
+
+flutter:
+  uses-material-design: true
