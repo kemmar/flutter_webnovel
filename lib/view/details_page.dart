@@ -34,6 +34,8 @@ class _NovelDetailsPageState extends State<NovelDetailsPage> {
     });
   }
 
+  Future<void> _downloadChapters() async {}
+
   ChapterElm _addChapterList(ChapterElm chapterElm) {
     chapterElm.chapters = _chapters;
     return chapterElm;
@@ -59,30 +61,30 @@ class _NovelDetailsPageState extends State<NovelDetailsPage> {
           title: Text(widget.novel.name),
           actions: [
             IconButton(
-              icon: Icon(_reverse ? Icons.arrow_drop_up : Icons.arrow_drop_down),
+              icon:
+                  Icon(_reverse ? Icons.arrow_drop_up : Icons.arrow_drop_down),
               onPressed: flipList,
             ),
           ],
         ),
         body: Center(
-          child: Container(child:
-            ListView(
-              children:
-                  _chapters
-                      .map((e) => ListTile(title: Text(e.name), onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                          NovelChapterPage(chapter: _addChapterList(e), chapterIndex: _chapters.indexOf(e))
-                        ),
-                  ),))
-                      .toList(),
-            )
-          ),
-        ),
+            child: ListView(
+          children: _chapters
+              .map((e) => ListTile(
+                    title: Text(e.name),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => NovelChapterPage(
+                              chapter: _addChapterList(e),
+                              chapterIndex: _chapters.indexOf(e))),
+                    ),
+                  ))
+              .toList(),
+        )),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => null,
-          tooltip: 'Increment',
+          onPressed: _downloadChapters,
+          tooltip: 'Download',
           child: const Icon(Icons.save_alt),
         ));
   }

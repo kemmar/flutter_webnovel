@@ -1,3 +1,4 @@
+// @dart = 2.11
 import 'package:flutter/material.dart';
 import 'package:wuxia_app_java/pigeon.dart';
 
@@ -30,16 +31,15 @@ class _MyHomePageState extends State<MyHomePage> {
   List<NovelInfo> _filterNullNovels(List<NovelInfo> novels) {
     List<NovelInfo> book = List.empty(growable: true);
 
-    novels.forEach((e) => {
+    for (var e in novels) {
       if (e != null &&
           e.name != null &&
           e.imgUrl != null &&
           e.imgUrl.isNotEmpty &&
-          e.name.isNotEmpty)
-        {book.add(e)}
-      else
-        {print(e.name)}
-    });
+          e.name.isNotEmpty) {
+        book.add(e);
+      }
+    }
 
     return book;
   }
@@ -60,7 +60,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _listHomePage() async {
-
     List<NovelInfo> novels = await MyApis.novelAPI.listNovels();
 
     setState(() {

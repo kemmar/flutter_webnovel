@@ -10,6 +10,8 @@ abstract class NovelApi {
   ChapterInfo listNovelChapters(String novelName);
 
   Chapter readNovelChapter(String novelName, String chapterName);
+
+  void downloadChapters(ChapterInfo chapters);
 }
 
 class NovelInfo {

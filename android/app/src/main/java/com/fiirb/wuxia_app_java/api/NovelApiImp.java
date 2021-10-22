@@ -10,6 +10,7 @@ import com.fiirb.wuxia_app_java.novel.NovelService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class NovelApiImp implements WuxiaModels.NovelApi {
 
@@ -63,5 +64,14 @@ public class NovelApiImp implements WuxiaModels.NovelApi {
            blankChapter.setTitle("not found");
             return blankChapter;
         }
+    }
+
+    @Override
+    public void downloadChapters(ChapterInfo chapters) {
+        List<Chapter> allChapters = chapters.getChapters()
+                .stream()
+                .map(chapterElm -> readNovelChapter("", chapterElm.getUrlPath()))
+                .collect(Collectors.toList());
+
     }
 }
