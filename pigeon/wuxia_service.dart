@@ -1,4 +1,3 @@
-// @dart = 2.12
 import 'package:pigeon/pigeon.dart';
 
 @HostApi()
@@ -23,7 +22,6 @@ class NovelInfo {
 class ChapterElm {
   String? name;
   String? urlPath;
-  List<ChapterElm?>? chapters;
 }
 
 class ChapterInfo {

@@ -33,13 +33,11 @@ class NovelInfo {
 class ChapterElm {
   String? name;
   String? urlPath;
-  List<ChapterElm?>? chapters;
 
   Object encode() {
     final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
     pigeonMap['name'] = name;
     pigeonMap['urlPath'] = urlPath;
-    pigeonMap['chapters'] = chapters;
     return pigeonMap;
   }
 
@@ -47,8 +45,7 @@ class ChapterElm {
     final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
     return ChapterElm()
       ..name = pigeonMap['name'] as String?
-      ..urlPath = pigeonMap['urlPath'] as String?
-      ..chapters = (pigeonMap['chapters'] as List<Object?>?)?.cast<ChapterElm?>();
+      ..urlPath = pigeonMap['urlPath'] as String?;
   }
 }
 
@@ -77,13 +74,11 @@ class ChapterInfo {
 class Chapter {
   String? title;
   List<String?>? chapter;
-  List<ChapterElm?>? chapters;
 
   Object encode() {
     final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
     pigeonMap['title'] = title;
     pigeonMap['chapter'] = chapter;
-    pigeonMap['chapters'] = chapters;
     return pigeonMap;
   }
 
@@ -91,8 +86,7 @@ class Chapter {
     final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
     return Chapter()
       ..title = pigeonMap['title'] as String?
-      ..chapter = (pigeonMap['chapter'] as List<Object?>?)?.cast<String?>()
-      ..chapters = (pigeonMap['chapters'] as List<Object?>?)?.cast<ChapterElm?>();
+      ..chapter = (pigeonMap['chapter'] as List<Object?>?)?.cast<String?>();
   }
 }
 
@@ -108,7 +102,7 @@ class _NovelApiCodec extends StandardMessageCodec {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
     } else 
-    if (value is ChapterElm) {
+    if (value is ChapterInfo) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
     } else 
@@ -138,7 +132,7 @@ class _NovelApiCodec extends StandardMessageCodec {
         return ChapterElm.decode(readValue(buffer)!);
       
       case 130:       
-        return ChapterElm.decode(readValue(buffer)!);
+        return ChapterInfo.decode(readValue(buffer)!);
       
       case 131:       
         return ChapterInfo.decode(readValue(buffer)!);
@@ -255,6 +249,29 @@ class NovelApi {
       );
     } else {
       return (replyMap['result'] as Chapter?)!;
+    }
+  }
+
+  Future<void> downloadChapters(ChapterInfo arg_chapters) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.NovelApi.downloadChapters', codec, binaryMessenger: _binaryMessenger);
+    final Map<Object?, Object?>? replyMap =
+        await channel.send(<Object>[arg_chapters]) as Map<Object?, Object?>?;
+    if (replyMap == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+        details: null,
+      );
+    } else if (replyMap['error'] != null) {
+      final Map<Object?, Object?> error = (replyMap['error'] as Map<Object?, Object?>?)!;
+      throw PlatformException(
+        code: (error['code'] as String?)!,
+        message: error['message'] as String?,
+        details: error['details'],
+      );
+    } else {
+      return;
     }
   }
 }

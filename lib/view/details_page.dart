@@ -36,11 +36,6 @@ class _NovelDetailsPageState extends State<NovelDetailsPage> {
 
   Future<void> _downloadChapters() async {}
 
-  ChapterElm _addChapterList(ChapterElm chapterElm) {
-    chapterElm.chapters = _chapters;
-    return chapterElm;
-  }
-
   void flipList() {
     setState(() {
       _reverse = !(_reverse);
@@ -76,8 +71,9 @@ class _NovelDetailsPageState extends State<NovelDetailsPage> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => NovelChapterPage(
-                              chapter: _addChapterList(e),
-                              chapterIndex: _chapters.indexOf(e))),
+                              chapter: e,
+                              chapterIndex: _chapters.indexOf(e),
+                          chapterList: _chapters)),
                     ),
                   ))
               .toList(),

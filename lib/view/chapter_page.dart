@@ -4,10 +4,11 @@ import 'package:wuxia_app_java/main.dart';
 import 'package:wuxia_app_java/pigeon.dart';
 
 class NovelChapterPage extends StatefulWidget {
-  const NovelChapterPage({Key key, this.chapter, this.chapterIndex}) : super(key: key);
+  const NovelChapterPage({Key key, this.chapter, this.chapterIndex, this.chapterList}) : super(key: key);
 
   final ChapterElm chapter;
   final int chapterIndex;
+  final List<ChapterElm> chapterList;
 
   @override
   State<NovelChapterPage> createState() => _NovelChapterPageState();
@@ -26,17 +27,16 @@ class _NovelChapterPageState extends State<NovelChapterPage> {
   }
 
   changePage(int index) {
-    if(index >= 0 && index < widget.chapter.chapters.length) {
-      ChapterElm chapterElm = widget.chapter.chapters[index];
-
-      chapterElm.chapters = widget.chapter.chapters;
+    if(index >= 0 && index < widget.chapterList.length) {
+      ChapterElm chapterElm = widget.chapterList[index];
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (context) =>
                 NovelChapterPage(chapter: chapterElm,
-                    chapterIndex: widget.chapter.chapters.indexOf(chapterElm))),
+                    chapterIndex: widget.chapterList.indexOf(chapterElm),
+                  chapterList: widget.chapterList,)),
       );
     }
   }
