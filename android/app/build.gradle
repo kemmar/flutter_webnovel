@@ -54,6 +54,19 @@ flutter {
     source '../..'
 }
 
+repositories {
+    maven {
+        url 'https://github.com/psiegman/mvn-repo/raw/master/releases'
+    }
+}
+
 dependencies {
     implementation 'org.jsoup:jsoup:1.14.3'
+    
+    implementation('nl.siegmann.epublib:epublib-core:4.0') {
+        exclude group: 'org.slf4j'
+        exclude group: 'xmlpull'
+    }
+
+    implementation 'org.slf4j:slf4j-android:1.7.25'
 }

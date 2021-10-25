@@ -68,10 +68,30 @@ public class NovelApiImp implements WuxiaModels.NovelApi {
 
     @Override
     public void downloadChapters(ChapterInfo chapters) {
+
+        Book book = new Book();
+        Metadata metadata = book.getMetadata();
+
+        // Set the title
+        metadata.addTitle("Epublib test book 1");
+
+        // Add an Author
+        metadata.addAuthor(new Author("Joe", "Tester"));
+
+        // Set cover image
+        book.setCoverImage(
+                getResource("/book1/test_cover.png", "cover.png") );
+
         List<Chapter> allChapters = chapters.getChapters()
                 .stream()
                 .map(chapterElm -> readNovelChapter("", chapterElm.getUrlPath()))
                 .collect(Collectors.toList());
+
+        // Create EpubWriter
+        EpubWriter epubWriter = new EpubWriter();
+
+        // Write the Book as Epub
+        epubWriter.write(book, new FileOutputStream("test1_book1.epub"));
 
     }
 }
