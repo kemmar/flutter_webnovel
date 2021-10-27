@@ -63,10 +63,10 @@ repositories {
 dependencies {
     implementation 'org.jsoup:jsoup:1.14.3'
 
-    implementation('nl.siegmann.epublib:epublib-core:3.1') {
-        exclude group: 'org.slf4j'
-        exclude group: 'xmlpull'
+    implementation("net.kemitix:epub-creator:1.1.0"){
+        exclude group: 'net.sourceforge.htmlcleaner', module: 'htmlcleaner'
     }
-    implementation 'org.slf4j:slf4j-android:1.7.25'
+
+    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.25'
 
 }

@@ -8,6 +8,7 @@ import com.fiirb.wuxia_app_java.models.WuxiaModels.ChapterInfo;
 import com.fiirb.wuxia_app_java.models.WuxiaModels.NovelInfo;
 import com.fiirb.wuxia_app_java.utils.AppConfig;
 
+import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,17 +18,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import coza.opencollab.epub.creator.EpubConstants;
+import coza.opencollab.epub.creator.model.Content;
+import coza.opencollab.epub.creator.model.EpubBook;
 import io.flutter.embedding.android.FlutterActivity;
-import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.Metadata;
-import nl.siegmann.epublib.domain.Resource;
-import nl.siegmann.epublib.epub.EpubWriter;
 
 public class NovelService {
 
@@ -269,19 +270,13 @@ public class NovelService {
             public void run() {
                 try {
 
-                    Book book = new Book();
+                    EpubBook book = new EpubBook("en", novelInfo.getName(), novelInfo.getName(), "Fiirb");
 
-                    Metadata metadata = book.getMetadata();
-
-                    metadata.addTitle(novelInfo.getName());
-
-                    book.setCoverImage(
-                            new Resource(new URL(novelInfo.getImgUrl()).openStream(), "image/cover.jpg") );
+                    book.addCoverImage(IOUtils.toByteArray(new URL(novelInfo.getImgUrl()).openStream()),
+                            "image/jpeg", "images/coverImage.jpg");
 
                     for (ChapterElm chapterElm : chapterInfo.getChapters()) {
                         Chapter chapter = getChapter(chapterElm.getUrlPath());
-
-                        System.out.println("Writing chapter: " + chapter.getTitle());
 
                         Optional<String> page =
                                 chapter
@@ -290,26 +285,38 @@ public class NovelService {
                                         .reduce((str, nextLine) -> String.format("%s<p>%s</p>", str, nextLine));
                         page.map(pg -> {
 
-                            book.addSection(chapter.getTitle(), new Resource(pg.getBytes(), String.format("chapter/%s.htm", chapter.getTitle())));
+                            System.out.println("Writing chapter: " + chapter.getTitle());
+                            String formattedContent = MessageFormat.format(EpubConstants.HTML_WRAPPER, chapter.getTitle(), pg);
+
+                            Content content =
+                                    new Content("application/xhtml+xml",
+                                            String.format("html/%s/%s.htm", novelInfo.getName(), chapter.getTitle()),
+                                            formattedContent.getBytes());
+
+                            content.setId(chapter.getTitle());
+                            content.setToc(true);
+                            content.setSpine(true);
+
+                            book.addContent(content);
 
                             return book;
                         });
                     }
-
-                    EpubWriter epubWriter = new EpubWriter();
-
 
                     File file =
                             new File(Environment
                                     .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
                                     novelInfo.getName() + ".epub");
 
-                    if(file.exists()) {
+                    if (file.exists()) {
                         file.delete();
                     }
 
-                    epubWriter.write(book, new FileOutputStream(file));
+                    FileOutputStream stream = new FileOutputStream(file);
 
+                    book.writeToStream(stream);
+
+                    stream.close();
                     System.out.println(file);
 
                 } catch (ExceptionInInitializerError | Exception e) {
