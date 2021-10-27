@@ -118,6 +118,10 @@ class _NovelApiCodec extends StandardMessageCodec {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
     } else 
+    if (value is NovelInfo) {
+      buffer.putUint8(134);
+      writeValue(buffer, value.encode());
+    } else 
 {
       super.writeValue(buffer, value);
     }
@@ -141,6 +145,9 @@ class _NovelApiCodec extends StandardMessageCodec {
         return NovelInfo.decode(readValue(buffer)!);
       
       case 133:       
+        return NovelInfo.decode(readValue(buffer)!);
+      
+      case 134:       
         return NovelInfo.decode(readValue(buffer)!);
       
       default:      
@@ -252,11 +259,11 @@ class NovelApi {
     }
   }
 
-  Future<void> downloadChapters(ChapterInfo arg_chapters) async {
+  Future<void> downloadChapters(NovelInfo arg_novelInfo, ChapterInfo arg_chapters) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.NovelApi.downloadChapters', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
-        await channel.send(<Object>[arg_chapters]) as Map<Object?, Object?>?;
+        await channel.send(<Object>[arg_novelInfo, arg_chapters]) as Map<Object?, Object?>?;
     if (replyMap == null) {
       throw PlatformException(
         code: 'channel-error',

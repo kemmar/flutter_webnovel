@@ -160,6 +160,9 @@ public class WuxiaModels {
         case (byte)133:         
           return NovelInfo.fromMap((Map<String, Object>) readValue(buffer));
         
+        case (byte)134:         
+          return NovelInfo.fromMap((Map<String, Object>) readValue(buffer));
+        
         default:        
           return super.readValueOfType(type, buffer);
         
@@ -191,6 +194,10 @@ public class WuxiaModels {
         stream.write(133);
         writeValue(stream, ((NovelInfo) value).toMap());
       } else 
+      if (value instanceof NovelInfo) {
+        stream.write(134);
+        writeValue(stream, ((NovelInfo) value).toMap());
+      } else 
 {
         super.writeValue(stream, value);
       }
@@ -203,7 +210,7 @@ public class WuxiaModels {
     List<NovelInfo> findNovels(String search);
     ChapterInfo listNovelChapters(String novelName);
     Chapter readNovelChapter(String novelName, String chapterName);
-    void downloadChapters(ChapterInfo chapters);
+    void downloadChapters(NovelInfo novelInfo, ChapterInfo chapters);
 
     /** The codec used by NovelApi. */
     static MessageCodec<Object> getCodec() {
@@ -315,11 +322,15 @@ public class WuxiaModels {
             Map<String, Object> wrapped = new HashMap<>();
             try {
               ArrayList<Object> args = (ArrayList<Object>)message;
-              ChapterInfo chaptersArg = (ChapterInfo)args.get(0);
+              NovelInfo novelInfoArg = (NovelInfo)args.get(0);
+              if (novelInfoArg == null) {
+                throw new NullPointerException("novelInfoArg unexpectedly null.");
+              }
+              ChapterInfo chaptersArg = (ChapterInfo)args.get(1);
               if (chaptersArg == null) {
                 throw new NullPointerException("chaptersArg unexpectedly null.");
               }
-              api.downloadChapters(chaptersArg);
+              api.downloadChapters(novelInfoArg, chaptersArg);
               wrapped.put("result", null);
             }
             catch (Error | RuntimeException exception) {

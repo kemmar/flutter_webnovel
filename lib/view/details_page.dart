@@ -16,14 +16,16 @@ class NovelDetailsPage extends StatefulWidget {
 
 class _NovelDetailsPageState extends State<NovelDetailsPage> {
   List<ChapterElm> _chapters = List.empty(growable: true);
+  ChapterInfo _chapterInfo;
   bool _reverse = true;
 
   Future<void> _listChapters() async {
     List<ChapterElm> chapters = List.empty(growable: true);
 
+    ChapterInfo chapterInfo = await MyApis.novelAPI.listNovelChapters(widget.novel.url);
+
     for (var element
-        in (await MyApis.novelAPI.listNovelChapters(widget.novel.url))
-            .chapters) {
+        in chapterInfo.chapters) {
       if (element != null) {
         chapters.add(element);
       }
@@ -31,10 +33,13 @@ class _NovelDetailsPageState extends State<NovelDetailsPage> {
 
     setState(() {
       _chapters = chapters;
+      _chapterInfo = chapterInfo;
     });
   }
 
-  Future<void> _downloadChapters() async {}
+  Future<void> _downloadChapters() async {
+    MyApis.novelAPI.downloadChapters(widget.novel, _chapterInfo);
+  }
 
   void flipList() {
     setState(() {

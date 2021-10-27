@@ -1,5 +1,7 @@
 package com.fiirb.wuxia_app_java.novel;
 
+import android.os.Environment;
+
 import com.fiirb.wuxia_app_java.models.WuxiaModels.Chapter;
 import com.fiirb.wuxia_app_java.models.WuxiaModels.ChapterElm;
 import com.fiirb.wuxia_app_java.models.WuxiaModels.ChapterInfo;
@@ -11,13 +13,29 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import io.flutter.embedding.android.FlutterActivity;
+import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.Metadata;
+import nl.siegmann.epublib.domain.Resource;
+import nl.siegmann.epublib.epub.EpubWriter;
+
 public class NovelService {
+
+    FlutterActivity rootFileDir;
+
+    public NovelService(FlutterActivity filesDir) {
+        rootFileDir = filesDir;
+    }
 
     private Elements homePageElements() throws IOException, InterruptedException {
         class RunnableApiCalls implements Runnable {
@@ -51,7 +69,7 @@ public class NovelService {
         return runnable.getHomePageElements();
     }
 
-    public ChapterInfo getChapters(String novelPath) throws IOException, InterruptedException {
+    public ChapterInfo getChapters(String novelPath) throws InterruptedException {
         class RunnableApiCalls implements Runnable {
             private Document chapterElements;
 
@@ -133,7 +151,8 @@ public class NovelService {
                                 .html()
                                 .replaceAll("<br>", "")
                                 .replaceAll("<script>ChapterMid();</script>", "")
-                                .split("\n"));;
+                                .split("\n"));
+                ;
 
                 chapter.setTitle(title);
                 chapter.setChapter(chapterStr);
@@ -147,7 +166,6 @@ public class NovelService {
         thread.join();
         return runnable.getChapter();
     }
-
 
     public List<NovelInfo> getNovelsHome() throws IOException, InterruptedException {
 
@@ -242,5 +260,67 @@ public class NovelService {
         thread.start();
         thread.join();
         return runnable.getPages();
+    }
+
+    public void downloadNovel(NovelInfo novelInfo, ChapterInfo chapterInfo) throws InterruptedException {
+        class RunnableApiCalls implements Runnable {
+
+            @Override
+            public void run() {
+                try {
+
+                    Book book = new Book();
+
+                    Metadata metadata = book.getMetadata();
+
+                    metadata.addTitle(novelInfo.getName());
+
+                    book.setCoverImage(
+                            new Resource(new URL(novelInfo.getImgUrl()).openStream(), "image/cover.jpg") );
+
+                    for (ChapterElm chapterElm : chapterInfo.getChapters()) {
+                        Chapter chapter = getChapter(chapterElm.getUrlPath());
+
+                        System.out.println("Writing chapter: " + chapter.getTitle());
+
+                        Optional<String> page =
+                                chapter
+                                        .getChapter()
+                                        .stream()
+                                        .reduce((str, nextLine) -> String.format("%s<p>%s</p>", str, nextLine));
+                        page.map(pg -> {
+
+                            book.addSection(chapter.getTitle(), new Resource(pg.getBytes(), String.format("chapter/%s.htm", chapter.getTitle())));
+
+                            return book;
+                        });
+                    }
+
+                    EpubWriter epubWriter = new EpubWriter();
+
+
+                    File file =
+                            new File(Environment
+                                    .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
+                                    novelInfo.getName() + ".epub");
+
+                    if(file.exists()) {
+                        file.delete();
+                    }
+
+                    epubWriter.write(book, new FileOutputStream(file));
+
+                    System.out.println(file);
+
+                } catch (ExceptionInInitializerError | Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        RunnableApiCalls runnable = new RunnableApiCalls();
+        Thread thread = new Thread(runnable);
+        thread.start();
+        thread.join();
     }
 }
